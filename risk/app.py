@@ -125,10 +125,28 @@ elif page == "模型训练":
     
     st.info("注意：系统默认使用规则型分类逻辑进行风险评估，训练机器学习模型可以提高评估准确率，但不是必需的。")
     
-    # 检查数据集是否存在
-    dataset_path = "Dataset/bank.csv"
-    if os.path.exists(dataset_path):
-        st.success("找到数据集: bank.csv")
+    # 检查数据集是否存在，尝试多种路径格式
+    dataset_paths = ["Dataset/bank.csv", "Dataset\\bank.csv", "./Dataset/bank.csv", ".\\Dataset\\bank.csv"]
+    dataset_found = False
+    dataset_path = ""
+    
+    for path in dataset_paths:
+        if os.path.exists(path):
+            dataset_found = True
+            dataset_path = path
+            st.success(f"找到数据集: {path}")
+            break
+    
+    if not dataset_found:
+        # 尝试查找Dataset目录中的任何CSV文件
+        if os.path.exists("Dataset"):
+            csv_files = [f for f in os.listdir("Dataset") if f.endswith('.csv')]
+            if csv_files:
+                dataset_path = os.path.join("Dataset", csv_files[0])
+                st.success(f"找到数据集: {csv_files[0]}")
+                dataset_found = True
+    
+    if dataset_found:
         
         # 加载并显示数据集预览
         data = pd.read_csv(dataset_path, sep=',')
@@ -170,8 +188,26 @@ elif page == "模型训练":
                 rf_report = pd.DataFrame(results['rf_report']).transpose()
                 st.dataframe(rf_report)
     else:
-        st.error(f"未找到数据集: {dataset_path}")
-        st.info("请确保数据集文件位于正确的路径")
+        st.error("未找到数据集: Dataset/bank.csv")
+        st.info("请确保数据集文件位于正确的路径，或者手动上传数据集")
+        
+        # 添加上传数据集的选项
+        uploaded_file = st.file_uploader("上传CSV数据集", type=['csv'])
+        if uploaded_file is not None:
+            # 保存上传的文件
+            try:
+                # 确保Dataset目录存在
+                os.makedirs("Dataset", exist_ok=True)
+                
+                # 保存文件
+                with open(os.path.join("Dataset", "bank.csv"), "wb") as f:
+                    f.write(uploaded_file.getbuffer())
+                
+                st.success("数据集已成功上传！请刷新页面以加载数据集。")
+                # 刷新页面
+                st.experimental_rerun()
+            except Exception as e:
+                st.error(f"保存文件时出错: {str(e)}")
 
 # 风险评估页面
 elif page == "风险评估":
@@ -564,10 +600,14 @@ elif page == "投资建议":
                     '分配比例': allocations
                 })
                 
-                # 使用matplotlib创建饼图
+                # 使用matplotlib创建饼图，确保使用中文字体
                 st.write("### 投资产品配置比例")
                 fig, ax = plt.subplots()
-                ax.pie(pie_data['分配比例'], labels=pie_data['产品'], autopct='%1.1f%%', startangle=90)
+                # 确保使用中文字体
+                font_path = fm.findfont(fm.FontProperties(family=['SimHei', 'Microsoft YaHei']))
+                prop = fm.FontProperties(fname=font_path)
+                ax.pie(pie_data['分配比例'], labels=pie_data['产品'], autopct='%1.1f%%', startangle=90, 
+                       textprops={'fontproperties': prop})
                 ax.axis('equal')  # 确保饼图是圆的
                 st.pyplot(fig)
                 
@@ -759,10 +799,14 @@ elif page == "家庭投资组合":
                 index=[risk_mapping.get(idx, idx) for idx in risk_counts_rf.index]
             )
             
-            # 使用matplotlib创建饼图
+            # 使用matplotlib创建饼图，确保使用中文字体
             st.write("### 家庭风险分布")
             fig, ax = plt.subplots()
-            ax.pie(risk_counts_zh.values, labels=risk_counts_zh.index, autopct='%1.1f%%', startangle=90)
+            # 确保使用中文字体
+            font_path = fm.findfont(fm.FontProperties(family=['SimHei', 'Microsoft YaHei']))
+            prop = fm.FontProperties(fname=font_path)
+            ax.pie(risk_counts_zh.values, labels=risk_counts_zh.index, autopct='%1.1f%%', startangle=90,
+                  textprops={'fontproperties': prop})
             ax.axis('equal')  # 确保饼图是圆的
             st.pyplot(fig)
         
@@ -772,10 +816,14 @@ elif page == "家庭投资组合":
             if 'investment_portfolio' in members_df.columns:
                 portfolio_counts = members_df['investment_portfolio'].value_counts()
                 
-                # 使用matplotlib创建饼图
+                # 使用matplotlib创建饼图，确保使用中文字体
                 st.write("### 投资组合分布")
                 fig, ax = plt.subplots()
-                ax.pie(portfolio_counts.values, labels=portfolio_counts.index, autopct='%1.1f%%', startangle=90)
+                # 确保使用中文字体
+                font_path = fm.findfont(fm.FontProperties(family=['SimHei', 'Microsoft YaHei']))
+                prop = fm.FontProperties(fname=font_path)
+                ax.pie(portfolio_counts.values, labels=portfolio_counts.index, autopct='%1.1f%%', startangle=90,
+                      textprops={'fontproperties': prop})
                 ax.axis('equal')  # 确保饼图是圆的
                 st.pyplot(fig)
             else:
@@ -850,10 +898,14 @@ elif page == "家庭投资组合":
             '比例': list(portfolio_allocation.values())
         })
         
-        # 使用matplotlib创建饼图
+        # 使用matplotlib创建饼图，确保使用中文字体
         st.write("### 建议家庭资产配置")
         fig, ax = plt.subplots()
-        ax.pie(allocation_df['比例'], labels=allocation_df['资产类型'], autopct='%1.1f%%', startangle=90)
+        # 确保使用中文字体
+        font_path = fm.findfont(fm.FontProperties(family=['SimHei', 'Microsoft YaHei']))
+        prop = fm.FontProperties(fname=font_path)
+        ax.pie(allocation_df['比例'], labels=allocation_df['资产类型'], autopct='%1.1f%%', startangle=90,
+              textprops={'fontproperties': prop})
         ax.axis('equal')  # 确保饼图是圆的
         st.pyplot(fig)
         
@@ -922,10 +974,14 @@ elif page == "家庭投资组合":
                             '比例': allocations
                         })
                         
-                        # 使用matplotlib创建饼图
+                        # 使用matplotlib创建饼图，确保使用中文字体
                         st.write("### 建议投资配置")
                         fig, ax = plt.subplots()
-                        ax.pie(product_df['比例'], labels=product_df['产品'], autopct='%1.1f%%', startangle=90)
+                        # 确保使用中文字体
+                        font_path = fm.findfont(fm.FontProperties(family=['SimHei', 'Microsoft YaHei']))
+                        prop = fm.FontProperties(fname=font_path)
+                        ax.pie(product_df['比例'], labels=product_df['产品'], autopct='%1.1f%%', startangle=90,
+                              textprops={'fontproperties': prop})
                         ax.axis('equal')  # 确保饼图是圆的
                         st.pyplot(fig)
         
