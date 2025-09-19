@@ -564,9 +564,12 @@ elif page == "投资建议":
                     '分配比例': allocations
                 })
                 
-                # 使用Streamlit的原生饼图
+                # 使用matplotlib创建饼图
                 st.write("### 投资产品配置比例")
-                st.pie_chart(pie_data.set_index('产品'))
+                fig, ax = plt.subplots()
+                ax.pie(pie_data['分配比例'], labels=pie_data['产品'], autopct='%1.1f%%', startangle=90)
+                ax.axis('equal')  # 确保饼图是圆的
+                st.pyplot(fig)
                 
                 
                 # 产品详情表格 - 使用中文标题
@@ -756,9 +759,12 @@ elif page == "家庭投资组合":
                 index=[risk_mapping.get(idx, idx) for idx in risk_counts_rf.index]
             )
             
-            # 使用Streamlit原生饼图
+            # 使用matplotlib创建饼图
             st.write("### 家庭风险分布")
-            st.pie_chart(risk_counts_zh)
+            fig, ax = plt.subplots()
+            ax.pie(risk_counts_zh.values, labels=risk_counts_zh.index, autopct='%1.1f%%', startangle=90)
+            ax.axis('equal')  # 确保饼图是圆的
+            st.pyplot(fig)
         
         with col2:
             st.subheader("投资组合分布")
@@ -766,9 +772,12 @@ elif page == "家庭投资组合":
             if 'investment_portfolio' in members_df.columns:
                 portfolio_counts = members_df['investment_portfolio'].value_counts()
                 
-                # 使用Streamlit原生饼图
+                # 使用matplotlib创建饼图
                 st.write("### 投资组合分布")
-                st.pie_chart(portfolio_counts)
+                fig, ax = plt.subplots()
+                ax.pie(portfolio_counts.values, labels=portfolio_counts.index, autopct='%1.1f%%', startangle=90)
+                ax.axis('equal')  # 确保饼图是圆的
+                st.pyplot(fig)
             else:
                 st.info("尚无投资组合数据")
         
@@ -841,9 +850,12 @@ elif page == "家庭投资组合":
             '比例': list(portfolio_allocation.values())
         })
         
-        # 使用Streamlit原生饼图
+        # 使用matplotlib创建饼图
         st.write("### 建议家庭资产配置")
-        st.pie_chart(allocation_df.set_index('资产类型'))
+        fig, ax = plt.subplots()
+        ax.pie(allocation_df['比例'], labels=allocation_df['资产类型'], autopct='%1.1f%%', startangle=90)
+        ax.axis('equal')  # 确保饼图是圆的
+        st.pyplot(fig)
         
         # 家庭成员投资详情
         st.subheader("家庭成员投资详情")
@@ -910,9 +922,12 @@ elif page == "家庭投资组合":
                             '比例': allocations
                         })
                         
-                        # 使用Streamlit原生饼图
+                        # 使用matplotlib创建饼图
                         st.write("### 建议投资配置")
-                        st.pie_chart(product_df.set_index('产品'))
+                        fig, ax = plt.subplots()
+                        ax.pie(product_df['比例'], labels=product_df['产品'], autopct='%1.1f%%', startangle=90)
+                        ax.axis('equal')  # 确保饼图是圆的
+                        st.pyplot(fig)
         
         # 添加清除按钮
         if st.button("清除所有家庭成员"):
