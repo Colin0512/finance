@@ -125,26 +125,11 @@ elif page == "模型训练":
     
     st.info("注意：系统默认使用规则型分类逻辑进行风险评估，训练机器学习模型可以提高评估准确率，但不是必需的。")
     
-    # 检查数据集是否存在，尝试多种路径格式
-    dataset_paths = ["Dataset/bank.csv", "Dataset\\bank.csv", "./Dataset/bank.csv", ".\\Dataset\\bank.csv"]
-    dataset_found = False
-    dataset_path = ""
+    # 使用简单的相对路径查找数据集
+    dataset_path = os.path.join("Dataset", "bank.csv")
     
-    for path in dataset_paths:
-        if os.path.exists(path):
-            dataset_found = True
-            dataset_path = path
-            st.success(f"找到数据集: {path}")
-            break
-    
-    if not dataset_found:
-        # 尝试查找Dataset目录中的任何CSV文件
-        if os.path.exists("Dataset"):
-            csv_files = [f for f in os.listdir("Dataset") if f.endswith('.csv')]
-            if csv_files:
-                dataset_path = os.path.join("Dataset", csv_files[0])
-                st.success(f"找到数据集: {csv_files[0]}")
-                dataset_found = True
+    # 检查数据集是否存在
+    dataset_found = os.path.exists(dataset_path)
     
     if dataset_found:
         
@@ -603,11 +588,18 @@ elif page == "投资建议":
                 # 使用matplotlib创建饼图，确保使用中文字体
                 st.write("### 投资产品配置比例")
                 fig, ax = plt.subplots()
-                # 确保使用中文字体
-                font_path = fm.findfont(fm.FontProperties(family=['SimHei', 'Microsoft YaHei']))
-                prop = fm.FontProperties(fname=font_path)
-                ax.pie(pie_data['分配比例'], labels=pie_data['产品'], autopct='%1.1f%%', startangle=90, 
-                       textprops={'fontproperties': prop})
+                # 确保使用中文字体 - 使用系统字体
+                try:
+                    # 尝试使用系统字体
+                    font_path = fm.findfont(fm.FontProperties(family=['SimHei', 'Microsoft YaHei']))
+                    prop = fm.FontProperties(fname=font_path)
+                    ax.pie(pie_data['分配比例'], labels=pie_data['产品'], autopct='%1.1f%%', startangle=90,
+                          textprops={'fontproperties': prop})
+                except Exception as e:
+                    st.warning(f"使用系统字体失败: {str(e)}，尝试使用默认字体")
+                    # 如果系统字体失败，使用默认字体
+                    ax.pie(pie_data['分配比例'], labels=pie_data['产品'], autopct='%1.1f%%', startangle=90)
+                
                 ax.axis('equal')  # 确保饼图是圆的
                 st.pyplot(fig)
                 
@@ -802,11 +794,18 @@ elif page == "家庭投资组合":
             # 使用matplotlib创建饼图，确保使用中文字体
             st.write("### 家庭风险分布")
             fig, ax = plt.subplots()
-            # 确保使用中文字体
-            font_path = fm.findfont(fm.FontProperties(family=['SimHei', 'Microsoft YaHei']))
-            prop = fm.FontProperties(fname=font_path)
-            ax.pie(risk_counts_zh.values, labels=risk_counts_zh.index, autopct='%1.1f%%', startangle=90,
-                  textprops={'fontproperties': prop})
+            # 确保使用中文字体 - 使用系统字体
+            try:
+                # 尝试使用系统字体
+                font_path = fm.findfont(fm.FontProperties(family=['SimHei', 'Microsoft YaHei']))
+                prop = fm.FontProperties(fname=font_path)
+                ax.pie(risk_counts_zh.values, labels=risk_counts_zh.index, autopct='%1.1f%%', startangle=90,
+                      textprops={'fontproperties': prop})
+            except Exception as e:
+                st.warning(f"使用系统字体失败: {str(e)}，尝试使用默认字体")
+                # 如果系统字体失败，使用默认字体
+                ax.pie(risk_counts_zh.values, labels=risk_counts_zh.index, autopct='%1.1f%%', startangle=90)
+            
             ax.axis('equal')  # 确保饼图是圆的
             st.pyplot(fig)
         
@@ -819,11 +818,18 @@ elif page == "家庭投资组合":
                 # 使用matplotlib创建饼图，确保使用中文字体
                 st.write("### 投资组合分布")
                 fig, ax = plt.subplots()
-                # 确保使用中文字体
-                font_path = fm.findfont(fm.FontProperties(family=['SimHei', 'Microsoft YaHei']))
-                prop = fm.FontProperties(fname=font_path)
-                ax.pie(portfolio_counts.values, labels=portfolio_counts.index, autopct='%1.1f%%', startangle=90,
-                      textprops={'fontproperties': prop})
+                # 确保使用中文字体 - 使用系统字体
+                try:
+                    # 尝试使用系统字体
+                    font_path = fm.findfont(fm.FontProperties(family=['SimHei', 'Microsoft YaHei']))
+                    prop = fm.FontProperties(fname=font_path)
+                    ax.pie(portfolio_counts.values, labels=portfolio_counts.index, autopct='%1.1f%%', startangle=90,
+                          textprops={'fontproperties': prop})
+                except Exception as e:
+                    st.warning(f"使用系统字体失败: {str(e)}，尝试使用默认字体")
+                    # 如果系统字体失败，使用默认字体
+                    ax.pie(portfolio_counts.values, labels=portfolio_counts.index, autopct='%1.1f%%', startangle=90)
+                
                 ax.axis('equal')  # 确保饼图是圆的
                 st.pyplot(fig)
             else:
@@ -901,11 +907,18 @@ elif page == "家庭投资组合":
         # 使用matplotlib创建饼图，确保使用中文字体
         st.write("### 建议家庭资产配置")
         fig, ax = plt.subplots()
-        # 确保使用中文字体
-        font_path = fm.findfont(fm.FontProperties(family=['SimHei', 'Microsoft YaHei']))
-        prop = fm.FontProperties(fname=font_path)
-        ax.pie(allocation_df['比例'], labels=allocation_df['资产类型'], autopct='%1.1f%%', startangle=90,
-              textprops={'fontproperties': prop})
+        # 确保使用中文字体 - 使用系统字体
+        try:
+            # 尝试使用系统字体
+            font_path = fm.findfont(fm.FontProperties(family=['SimHei', 'Microsoft YaHei']))
+            prop = fm.FontProperties(fname=font_path)
+            ax.pie(allocation_df['比例'], labels=allocation_df['资产类型'], autopct='%1.1f%%', startangle=90,
+                  textprops={'fontproperties': prop})
+        except Exception as e:
+            st.warning(f"使用系统字体失败: {str(e)}，尝试使用默认字体")
+            # 如果系统字体失败，使用默认字体
+            ax.pie(allocation_df['比例'], labels=allocation_df['资产类型'], autopct='%1.1f%%', startangle=90)
+        
         ax.axis('equal')  # 确保饼图是圆的
         st.pyplot(fig)
         
@@ -977,11 +990,18 @@ elif page == "家庭投资组合":
                         # 使用matplotlib创建饼图，确保使用中文字体
                         st.write("### 建议投资配置")
                         fig, ax = plt.subplots()
-                        # 确保使用中文字体
-                        font_path = fm.findfont(fm.FontProperties(family=['SimHei', 'Microsoft YaHei']))
-                        prop = fm.FontProperties(fname=font_path)
-                        ax.pie(product_df['比例'], labels=product_df['产品'], autopct='%1.1f%%', startangle=90,
-                              textprops={'fontproperties': prop})
+                        # 确保使用中文字体 - 使用系统字体
+                        try:
+                            # 尝试使用系统字体
+                            font_path = fm.findfont(fm.FontProperties(family=['SimHei', 'Microsoft YaHei']))
+                            prop = fm.FontProperties(fname=font_path)
+                            ax.pie(product_df['比例'], labels=product_df['产品'], autopct='%1.1f%%', startangle=90,
+                                  textprops={'fontproperties': prop})
+                        except Exception as e:
+                            st.warning(f"使用系统字体失败: {str(e)}，尝试使用默认字体")
+                            # 如果系统字体失败，使用默认字体
+                            ax.pie(product_df['比例'], labels=product_df['产品'], autopct='%1.1f%%', startangle=90)
+                        
                         ax.axis('equal')  # 确保饼图是圆的
                         st.pyplot(fig)
         
